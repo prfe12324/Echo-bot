@@ -154,7 +154,7 @@ def handle_text_message(event):
             sticker = StickerMessage(package_id='446', sticker_id='1988')
             line_bot_api.reply_message(ReplyMessageRequest(reply_token=event.reply_token, messages=[sticker]))
         elif text == '位置':
-            location = LocationMessage(title='我的家', address='高雄市路竹區竹東里平等街78號', latitude=22.8648475, longitude=120.2576675)
+            location = LocationMessage(title='星巴克', address='高雄市路竹區中山路475號', latitude=22.8686458, longitude=120.2560485)
             line_bot_api.reply_message(ReplyMessageRequest(reply_token=event.reply_token, messages=[location]))
 
 if __name__ == "__main__":
