@@ -31,15 +31,11 @@ from linebot.v3.webhooks import (
     MessageEvent,
     TextMessageContent,
     LocationMessageContent,
-    StickerMessageContent,
-    AudioMessageContent
 )
 from linebot.models import (
-    MessageEvent, TextMessage, TextSendMessage, AudioMessage,
-    StickerMessage, LocationMessage, QuickReply, QuickReplyButton,
-    LocationAction
+    TextSendMessage,
+    QuickReplyButton
 )
-from linebot.v3.messaging import ReplyMessageRequest
 
 import os
 
@@ -59,13 +55,13 @@ def callback():
         abort(400)
     return 'OK'
 
+# 📦 處理純文字訊息
 @line_handler.add(MessageEvent, message=TextMessageContent)
 def handle_text_message(event):
     text = event.message.text
     with ApiClient(configuration) as api_client:
         line_bot_api = MessagingApi(api_client)
 
-        # Confirm Template
         if text == 'Confirm':
             confirm_template = ConfirmTemplate(
                 text='今天學程式了嗎?',
@@ -79,13 +75,9 @@ def handle_text_message(event):
                 template=confirm_template
             )
             line_bot_api.reply_message(
-                ReplyMessageRequest(
-                    reply_token=event.reply_token,
-                    messages=[template_message]
-                )
+                ReplyMessageRequest(reply_token=event.reply_token, messages=[template_message])
             )
 
-        # Buttons Template
         elif text == 'Buttons':
             url = request.url_root + 'static/Logo.jpg'
             url = url.replace("http", "https")
@@ -107,7 +99,6 @@ def handle_text_message(event):
                 ReplyMessageRequest(reply_token=event.reply_token, messages=[template_message])
             )
 
-        # Carousel Template
         elif text == 'Carousel':
             url = request.url_root + 'static/Logo.jpg'
             url = url.replace("http", "https")
@@ -128,7 +119,6 @@ def handle_text_message(event):
             carousel_message = TemplateMessage(alt_text='這是 Carousel Template', template=carousel_template)
             line_bot_api.reply_message(ReplyMessageRequest(reply_token=event.reply_token, messages=[carousel_message]))
 
-        # ImageCarousel Template
         elif text == 'ImageCarousel':
             url = request.url_root + 'static/'
             url = url.replace("http", "https")
@@ -140,7 +130,6 @@ def handle_text_message(event):
             image_carousel_message = TemplateMessage(alt_text='圖片輪播範本', template=image_carousel_template)
             line_bot_api.reply_message(ReplyMessageRequest(reply_token=event.reply_token, messages=[image_carousel_message]))
 
-        # Quick Reply
         elif text == 'Quick':
             reply = TextMessage(
                 text='請選擇：',
@@ -152,7 +141,6 @@ def handle_text_message(event):
             )
             line_bot_api.reply_message(ReplyMessageRequest(reply_token=event.reply_token, messages=[reply]))
 
-        # 音訊、貼圖、位置 (測試回傳)
         elif text == '音訊':
             audio = AudioMessage(
                 original_content_url='https://ffe0-114-33-34-103.ngrok-free.app/static/music.mp3',
@@ -169,11 +157,11 @@ def handle_text_message(event):
             )
 
         elif text == '位置':
-            message = TextSendMessage(
+            message = TextMessage(
                 text='請傳送你目前的位置給我 😊',
                 quick_reply=QuickReply(
                     items=[
-                        QuickReplyButton(action=LocationAction(label="傳送位置"))
+                        QuickReplyItem(action=LocationAction(label="傳送位置"))
                     ]
                 )
             )
@@ -181,21 +169,29 @@ def handle_text_message(event):
                 ReplyMessageRequest(reply_token=event.reply_token, messages=[message])
             )
 
-        # 處理使用者傳送的位置訊息
-        elif isinstance(event.message, LocationMessage):
-            address = event.message.address
-            latitude = event.message.latitude
-            longitude = event.message.longitude
+# 📍 處理位置訊息
+@line_handler.add(MessageEvent, message=LocationMessageContent)
+def handle_location_message(event):
+    with ApiClient(configuration) as api_client:
+        line_bot_api = MessagingApi(api_client)
 
-            reply_text = (
-                f"你傳送的位置資訊如下：\n"
-                f"📍 地址：{address}\n"
-                f"🌐 緯度：{latitude}\n"
-                f"🌐 經度：{longitude}"
+        address = event.message.address
+        latitude = event.message.latitude
+        longitude = event.message.longitude
+
+        reply_text = (
+            f"你傳送的位置資訊如下：\n"
+            f"📍 地址：{address}\n"
+            f"🌐 緯度：{latitude}\n"
+            f"🌐 經度：{longitude}"
+        )
+
+        line_bot_api.reply_message(
+            ReplyMessageRequest(
+                reply_token=event.reply_token,
+                messages=[TextMessage(text=reply_text)]
             )
-            line_bot_api.reply_message(
-                ReplyMessageRequest(reply_token=event.reply_token, messages=[TextSendMessage(text=reply_text)])
-            )
+        )
 
 if __name__ == "__main__":
     app.run()
