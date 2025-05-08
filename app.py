@@ -34,6 +34,12 @@ from linebot.v3.webhooks import (
     StickerMessageContent,
     AudioMessageContent
 )
+from linebot.models import (
+    MessageEvent, TextMessage, TextSendMessage, AudioMessage,
+    StickerMessage, LocationMessage, QuickReply, QuickReplyButton,
+    LocationAction
+)
+from linebot.v3.messaging import ReplyMessageRequest
 
 import os
 
@@ -148,14 +154,48 @@ def handle_text_message(event):
 
         # 音訊、貼圖、位置 (測試回傳)
         elif text == '音訊':
-            audio = AudioMessage(original_content_url='https://ffe0-114-33-34-103.ngrok-free.app/static/music.mp3', duration=10000)
-            line_bot_api.reply_message(ReplyMessageRequest(reply_token=event.reply_token, messages=[audio]))
+            audio = AudioMessage(
+                original_content_url='https://ffe0-114-33-34-103.ngrok-free.app/static/music.mp3',
+                duration=10000
+            )
+            line_bot_api.reply_message(
+                ReplyMessageRequest(reply_token=event.reply_token, messages=[audio])
+            )
+
         elif text == '貼圖':
             sticker = StickerMessage(package_id='446', sticker_id='1988')
-            line_bot_api.reply_message(ReplyMessageRequest(reply_token=event.reply_token, messages=[sticker]))
+            line_bot_api.reply_message(
+                ReplyMessageRequest(reply_token=event.reply_token, messages=[sticker])
+            )
+
         elif text == '位置':
-            location = LocationMessage(title='星巴克', address='高雄市路竹區中山路475號', latitude=22.8686458, longitude=120.2560485)
-            line_bot_api.reply_message(ReplyMessageRequest(reply_token=event.reply_token, messages=[location]))
+            message = TextSendMessage(
+                text='請傳送你目前的位置給我 😊',
+                quick_reply=QuickReply(
+                    items=[
+                        QuickReplyButton(action=LocationAction(label="傳送位置"))
+                    ]
+                )
+            )
+            line_bot_api.reply_message(
+                ReplyMessageRequest(reply_token=event.reply_token, messages=[message])
+            )
+
+        # 處理使用者傳送的位置訊息
+        elif isinstance(event.message, LocationMessage):
+            address = event.message.address
+            latitude = event.message.latitude
+            longitude = event.message.longitude
+
+            reply_text = (
+                f"你傳送的位置資訊如下：\n"
+                f"📍 地址：{address}\n"
+                f"🌐 緯度：{latitude}\n"
+                f"🌐 經度：{longitude}"
+            )
+            line_bot_api.reply_message(
+                ReplyMessageRequest(reply_token=event.reply_token, messages=[TextSendMessage(text=reply_text)])
+            )
 
 if __name__ == "__main__":
     app.run()
