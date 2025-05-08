@@ -31,17 +31,13 @@ from linebot.v3.webhooks import (
     MessageEvent,
     TextMessageContent,
     LocationMessageContent,
+    StickerMessageContent,
+    AudioMessageContent
 )
-from linebot.models import (
-    TextSendMessage,
-    QuickReplyButton
-)
-
-import os
 
 app = Flask(__name__)
-configuration = Configuration(access_token=os.getenv('CHANNEL_ACCESS_TOKEN'))
-line_handler = WebhookHandler(os.getenv('CHANNEL_SECRET'))
+configuration = Configuration(access_token='YOUR_CHANNEL_ACCESS_TOKEN')
+handler = WebhookHandler('YOUR_CHANNEL_SECRET')
 
 @app.route("/callback", methods=['POST'])
 def callback():
@@ -49,19 +45,19 @@ def callback():
     body = request.get_data(as_text=True)
     app.logger.info("Request body: " + body)
     try:
-        line_handler.handle(body, signature)
+        handler.handle(body, signature)
     except InvalidSignatureError:
         app.logger.info("Invalid signature.")
         abort(400)
     return 'OK'
 
-# 📦 處理純文字訊息
-@line_handler.add(MessageEvent, message=TextMessageContent)
+@handler.add(MessageEvent, message=TextMessageContent)
 def handle_text_message(event):
     text = event.message.text
     with ApiClient(configuration) as api_client:
         line_bot_api = MessagingApi(api_client)
 
+        # Confirm Template
         if text == 'Confirm':
             confirm_template = ConfirmTemplate(
                 text='今天學程式了嗎?',
@@ -75,9 +71,13 @@ def handle_text_message(event):
                 template=confirm_template
             )
             line_bot_api.reply_message(
-                ReplyMessageRequest(reply_token=event.reply_token, messages=[template_message])
+                ReplyMessageRequest(
+                    reply_token=event.reply_token,
+                    messages=[template_message]
+                )
             )
 
+        # Buttons Template
         elif text == 'Buttons':
             url = request.url_root + 'static/Logo.jpg'
             url = url.replace("http", "https")
@@ -99,6 +99,7 @@ def handle_text_message(event):
                 ReplyMessageRequest(reply_token=event.reply_token, messages=[template_message])
             )
 
+        # Carousel Template
         elif text == 'Carousel':
             url = request.url_root + 'static/Logo.jpg'
             url = url.replace("http", "https")
@@ -119,6 +120,7 @@ def handle_text_message(event):
             carousel_message = TemplateMessage(alt_text='這是 Carousel Template', template=carousel_template)
             line_bot_api.reply_message(ReplyMessageRequest(reply_token=event.reply_token, messages=[carousel_message]))
 
+        # ImageCarousel Template
         elif text == 'ImageCarousel':
             url = request.url_root + 'static/'
             url = url.replace("http", "https")
@@ -130,68 +132,31 @@ def handle_text_message(event):
             image_carousel_message = TemplateMessage(alt_text='圖片輪播範本', template=image_carousel_template)
             line_bot_api.reply_message(ReplyMessageRequest(reply_token=event.reply_token, messages=[image_carousel_message]))
 
+        # Quick Reply
         elif text == 'Quick':
             reply = TextMessage(
                 text='請選擇：',
                 quick_reply=QuickReply(items=[
-                    QuickReplyItem(action=MessageAction(label="打招呼", text="您好")),
+                    QuickReplyItem(action=MessageAction(label="打招呼", text="嗨")),
                     QuickReplyItem(action=LocationAction(label="傳送位置")),
                     QuickReplyItem(action=CameraAction(label="開啟相機"))
                 ])
             )
             line_bot_api.reply_message(ReplyMessageRequest(reply_token=event.reply_token, messages=[reply]))
 
+        # 音訊、貼圖、位置 (測試回傳)
         elif text == '音訊':
-            audio = AudioMessage(
-                original_content_url='https://ffe0-114-33-34-103.ngrok-free.app/static/music.mp3',
-                duration=10000
-            )
-            line_bot_api.reply_message(
-                ReplyMessageRequest(reply_token=event.reply_token, messages=[audio])
-            )
+            url = request.url_root + 'static/music.mp3'
+            url = url.replace("http", "https")
+            audio = AudioMessage(original_content_url=url, duration=10000)
+            line_bot_api.reply_message(ReplyMessageRequest(reply_token=event.reply_token, messages=[audio]))
 
         elif text == '貼圖':
             sticker = StickerMessage(package_id='446', sticker_id='1988')
-            line_bot_api.reply_message(
-                ReplyMessageRequest(reply_token=event.reply_token, messages=[sticker])
-            )
-
+            line_bot_api.reply_message(ReplyMessageRequest(reply_token=event.reply_token, messages=[sticker]))
         elif text == '位置':
-            message = TextMessage(
-                text='請傳送你目前的位置給我 😊',
-                quick_reply=QuickReply(
-                    items=[
-                        QuickReplyItem(action=LocationAction(label="傳送位置"))
-                    ]
-                )
-            )
-            line_bot_api.reply_message(
-                ReplyMessageRequest(reply_token=event.reply_token, messages=[message])
-            )
-
-# 📍 處理位置訊息
-@line_handler.add(MessageEvent, message=LocationMessageContent)
-def handle_location_message(event):
-    with ApiClient(configuration) as api_client:
-        line_bot_api = MessagingApi(api_client)
-
-        address = event.message.address
-        latitude = event.message.latitude
-        longitude = event.message.longitude
-
-        reply_text = (
-            f"你傳送的位置資訊如下：\n"
-            f"📍 地址：{address}\n"
-            f"🌐 緯度：{latitude}\n"
-            f"🌐 經度：{longitude}"
-        )
-
-        line_bot_api.reply_message(
-            ReplyMessageRequest(
-                reply_token=event.reply_token,
-                messages=[TextMessage(text=reply_text)]
-            )
-        )
+            location = LocationMessage(title='台北車站', address='台北市中正區忠孝西路一段49號', latitude=25.0478, longitude=121.5170)
+            line_bot_api.reply_message(ReplyMessageRequest(reply_token=event.reply_token, messages=[location]))
 
 if __name__ == "__main__":
     app.run()
