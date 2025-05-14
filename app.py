@@ -83,7 +83,7 @@ def handle_text_message(event):
         # Buttons Template
         elif text == 'Buttons':
             url = request.url_root + 'static/Logo.jpg'
-            url = url.replace("http", "https")
+            url = url.replace("http:", "https:")
             buttons_template = ButtonsTemplate(
                 thumbnail_image_url=url,
                 title='示範',
@@ -105,7 +105,7 @@ def handle_text_message(event):
         # Carousel Template
         elif text == 'Carousel':
             url = request.url_root + 'static/Logo.jpg'
-            url = url.replace("http", "https")
+            url = url.replace("http:", "https:")
             carousel_template = CarouselTemplate(columns=[
                 CarouselColumn(
                     thumbnail_image_url=url,
@@ -126,7 +126,7 @@ def handle_text_message(event):
         # ImageCarousel Template
         elif text == 'ImageCarousel':
             url = request.url_root + 'static/'
-            url = url.replace("http", "https")
+            url = url.replace("http:", "https:")
             image_carousel_template = ImageCarouselTemplate(columns=[
                 ImageCarouselColumn(image_url=url+'facebook.png', action=URIAction(label='造訪FB', uri='https://www.facebook.com/NTUEBIGDATAEDU')),
                 ImageCarouselColumn(image_url=url+'instagram.png', action=URIAction(label='造訪IG', uri='https://instagram.com/ntue.bigdata')),
@@ -152,7 +152,7 @@ def handle_text_message(event):
         # 音訊、貼圖、位置 (測試回傳)
         elif text == '音訊':
             url = request.url_root + 'static/music.mp3'
-            url = url.replace("http", "https")
+            url = url.replace("http:", "https:")
             audio = AudioMessage(original_content_url=url, duration=10000)
             line_bot_api.reply_message(ReplyMessageRequest(reply_token=event.reply_token, messages=[audio]))
 
