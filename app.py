@@ -35,7 +35,7 @@ from linebot.v3.webhooks import (
     StickerMessageContent,
     AudioMessageContent
 )
-
+from linebot.models import AudioSendMessage
 import os
 
 app = Flask(__name__)
@@ -147,12 +147,14 @@ def handle_text_message(event):
             )
             line_bot_api.reply_message(ReplyMessageRequest(reply_token=event.reply_token, messages=[reply]))
 
+
+
         # 音訊、貼圖、位置 (測試回傳)
         elif text == '音訊':
             url = request.url_root + 'static/music.mp3'
             url = url.replace("http", "https")
-            audio = AudioMessage(original_content_url=url, duration=10000)
-            line_bot_api.reply_message(ReplyMessageRequest(reply_token=event.reply_token, messages=[audio]))
+            audio = AudioSendMessage(original_content_url=url, duration=10000)
+            line_bot_api.reply_message(event.reply_token, audio)
 
         elif text == '貼圖':
             sticker = StickerMessage(package_id='446', sticker_id='1988')
