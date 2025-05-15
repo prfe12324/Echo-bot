@@ -219,8 +219,8 @@ def handle_text_message(event):
             "type": "button",
             "action": {
               "type": "uri",
-              "uri": "https://www.instagram.com/?hl=zh-tw",
-              "label": "IG"
+              "uri": "https://www.google.com/",
+              "label": "GOOGLE"
             },
             "style": "primary"
           },
