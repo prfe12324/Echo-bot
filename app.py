@@ -69,6 +69,15 @@ def callback():
 @line_handler.add(MessageEvent, message=TextMessageContent)
 def handle_text_message(event):
     text = event.message.text
+    user_id = event.source.user_id
+    user_text = event.message.text
+    with open("user_messages_log.txt", "a", encoding="utf-8") as f:
+        f.write(f"User ID: {user_id} - Message: {user_text}\n")
+
+    # === [2] 回覆功能（原本的邏輯） ===
+    text = event.message.text
+    with ApiClient(configuration) as api_client:
+        line_bot_api = MessagingApi(api_client)
     with ApiClient(configuration) as api_client:
         line_bot_api = MessagingApi(api_client)
 
