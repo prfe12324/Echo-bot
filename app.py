@@ -1,7 +1,17 @@
 from flask import Flask, request, abort
 from linebot.v3 import WebhookHandler
 from linebot.v3.exceptions import InvalidSignatureError
+import json
 from linebot.v3.messaging import (
+    FlexBox,
+    FlexMessage,
+    FlexBubble,
+    FlexImage,
+    FlexText,
+    FlexIcon,
+    FlexButton,
+    FlexSeparator,
+    FlexContainer,
     Configuration,
     ApiClient,
     MessagingApi,
@@ -26,6 +36,8 @@ from linebot.v3.messaging import (
     AudioMessage,
     QuickReply,
     QuickReplyItem
+    
+
 )
 
 from linebot.v3.webhooks import (
@@ -79,7 +91,268 @@ def handle_text_message(event):
                     messages=[template_message]
                 )
             )
+        if text == 'flex':
+            url = request.url_root + 'static/Logo.jpg'
+            url = url.replace("http", "https")
+            app.logger.info("url=" + url)
+            bubble = FlexBubble(
+                direction='ltr',
+                hero=FlexImage(
+                    url=url,
+                    size='full',
+                    aspect_ratio='20:13',
+                    aspect_mode='cover',
+                    action=URIAction(uri='https://www.facebook.com/NTUEBIGDATAEDU', label='label')
+                ),
+                body=FlexBox(
+                    layout='vertical',
+                    contents=[
+                        # title
+                        FlexText(text='教育大數據', weight='bold', size='xl'),
+                        # review
+                        FlexBox(
+                            layout='baseline',
+                            margin='md',
+                            contents=[
+                                FlexIcon(size='sm', url="https://scdn.line-apps.com/n/channel_devcenter/img/fx/review_gold_star_28.png"),
+                                FlexIcon(size='sm', url="https://scdn.line-apps.com/n/channel_devcenter/img/fx/review_gold_star_28.png"),
+                                FlexIcon(size='sm', url="https://scdn.line-apps.com/n/channel_devcenter/img/fx/review_gold_star_28.png"),
+                                FlexIcon(size='sm', url="https://scdn.line-apps.com/n/channel_devcenter/img/fx/review_gold_star_28.png"),
+                                FlexIcon(size='sm', url="https://scdn.line-apps.com/n/channel_devcenter/img/fx/review_gold_star_28.png"),
+                                FlexText(text='5.0', size='sm', color='#999999', margin='md', flex=0)
+                            ]
+                        ),
+                        # info
+                        FlexBox(
+                            layout='vertical',
+                            margin='lg',
+                            spacing='sm',
+                            contents=[
+                                FlexBox(
+                                    layout='baseline',
+                                    spacing='sm',
+                                    contents=[
+                                        FlexText(
+                                            text='Place',
+                                            color='#aaaaaa',
+                                            size='sm',
+                                            flex=1
+                                        ),
+                                        FlexText(
+                                            text='Da\'an District, Taipei ',
+                                            wrap=True,
+                                            color='#666666',
+                                            size='sm',
+                                            flex=5
+                                        )
+                                    ],
+                                ),
+                                FlexBox(
+                                    layout='baseline',
+                                    spacing='sm',
+                                    contents=[
+                                        FlexText(
+                                            text='Time',
+                                            color='#aaaaaa',
+                                            size='sm',
+                                            flex=1
+                                        ),
+                                        FlexText(
+                                            text="10:00 - 23:00",
+                                            wrap=True,
+                                            color='#666666',
+                                            size='sm',
+                                            flex=5,
+                                        ),
+                                    ],
+                                ),
+                            ],
+                        )
+                    ],
+                ),
+                footer=FlexBox(
+                    layout='vertical',
+                    spacing='sm',
+                    contents=[
+                        # callAction
+                        FlexButton(
+                            style='link',
+                            height='sm',
+                            action=URIAction(label='CALL', uri='tel:0911880932'),
+                        ),
+                        # separator
+                        FlexSeparator(),
+                        # websiteAction
+                        FlexButton(
+                            style='link',
+                            height='sm',
+                            action=URIAction(label='WEBSITE', uri='https://www.facebook.com/NTUEBIGDATAEDU')
+                        )
+                    ]
+                ),
+            )
+            line_bot_api.reply_message(
+                ReplyMessageRequest(
+                    reply_token=event.reply_token,
+                    messages=[FlexMessage(alt_text="hello", contents=bubble)]
+                )
+            )
 
+        elif text == 'flex message':
+            line_flex_json = {
+  "type": "bubble",
+  "hero": {
+    "type": "image",
+    "url": "https://i.imgur.com/8KotKuq.jpeg",
+    "size": "full",
+    "aspectRatio": "4:3",
+    "aspectMode": "cover"
+  },
+  "body": {
+    "type": "box",
+    "layout": "vertical",
+    "contents": [
+      {
+        "type": "text",
+        "text": "阿嬤的春捲課程",
+        "weight": "bold",
+        "size": "xl"
+      },
+      {
+        "type": "box",
+        "layout": "baseline",
+        "margin": "md",
+        "contents": [
+          {
+            "type": "icon",
+            "size": "sm",
+            "url": "https://developers-resource.landpress.line.me/fx/img/review_gold_star_28.png"
+          },
+          {
+            "type": "icon",
+            "size": "sm",
+            "url": "https://developers-resource.landpress.line.me/fx/img/review_gold_star_28.png"
+          },
+          {
+            "type": "icon",
+            "size": "sm",
+            "url": "https://developers-resource.landpress.line.me/fx/img/review_gold_star_28.png"
+          },
+          {
+            "type": "icon",
+            "size": "sm",
+            "url": "https://developers-resource.landpress.line.me/fx/img/review_gold_star_28.png"
+          },
+          {
+            "type": "icon",
+            "size": "sm",
+            "url": "https://developers-resource.landpress.line.me/fx/img/review_gold_star_28.png"
+          },
+          {
+            "type": "text",
+            "text": "5.0",
+            "size": "sm",
+            "color": "#999999",
+            "margin": "md",
+            "flex": 0
+          }
+        ]
+      },
+      {
+        "type": "box",
+        "layout": "vertical",
+        "margin": "lg",
+        "spacing": "sm",
+        "contents": [
+          {
+            "type": "box",
+            "layout": "baseline",
+            "spacing": "sm",
+            "contents": [
+              {
+                "type": "text",
+                "text": "地址",
+                "color": "#aaaaaa",
+                "size": "sm",
+                "flex": 1
+              },
+              {
+                "type": "text",
+                "text": "高雄市湖內區活動中心",
+                "wrap": True,
+                "color": "#666666",
+                "size": "sm",
+                "flex": 5
+              }
+            ]
+          },
+          {
+            "type": "box",
+            "layout": "baseline",
+            "spacing": "sm",
+            "contents": [
+              {
+                "type": "text",
+                "text": "時間",
+                "color": "#aaaaaa",
+                "size": "sm",
+                "flex": 1
+              },
+              {
+                "type": "text",
+                "text": "10:00 - 13:30",
+                "wrap": True,
+                "color": "#666666",
+                "size": "sm",
+                "flex": 5
+              }
+            ]
+          }
+        ]
+      }
+    ]
+  },
+  "footer": {
+    "type": "box",
+    "layout": "horizontal",
+    "spacing": "sm",
+    "contents": [
+      {
+        "type": "box",
+        "layout": "horizontal",
+        "contents": [
+          {
+            "type": "button",
+            "action": {
+              "type": "uri",
+              "uri": "https://www.instagram.com/?hl=zh-tw",
+              "label": "IG"
+            },
+            "style": "primary"
+          },
+          {
+            "type": "button",
+            "action": {
+              "type": "uri",
+              "label": "FB",
+              "uri": "https://www.facebook.com/"
+            },
+            "style": "secondary"
+          }
+        ],
+        "margin": "sm"
+      }
+    ],
+    "flex": 0
+  }
+}
+            line_flex_str = json.dumps(line_flex_json)
+            line_bot_api.reply_message(
+                ReplyMessageRequest(
+                    reply_token=event.reply_token,
+                    messages=[FlexMessage(alt_text='詳細說明', contents=FlexContainer.from_json(line_flex_str))]
+                )
+            )
         # Buttons Template
         elif text == 'Buttons':
             url = request.url_root + 'static/Logo.jpg'
