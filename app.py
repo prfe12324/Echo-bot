@@ -82,7 +82,7 @@ def handle_text_message(event):
 
         # Buttons Template
         elif text == 'Buttons':
-            url = request.url_root + '/static/Logo.jpg'
+            url = request.url_root + 'static/Logo.jpg'
             url = url.replace("http:", "https:")
             buttons_template = ButtonsTemplate(
                 thumbnail_image_url=url,
@@ -104,7 +104,7 @@ def handle_text_message(event):
 
         # Carousel Template
         elif text == 'Carousel':
-            url = request.url_root + '/static/Logo.jpg'
+            url = request.url_root + 'static/Logo.jpg'
             url = url.replace("http:", "https:")
             carousel_template = CarouselTemplate(columns=[
                 CarouselColumn(
@@ -125,7 +125,7 @@ def handle_text_message(event):
 
         # ImageCarousel Template
         elif text == 'ImageCarousel':
-            url = request.url_root + '/static/'
+            url = request.url_root + 'static/'
             url = url.replace("http:", "https:")
             image_carousel_template = ImageCarouselTemplate(columns=[
                 ImageCarouselColumn(image_url=url+'facebook.png', action=URIAction(label='造訪FB', uri='https://www.facebook.com/NTUEBIGDATAEDU')),
