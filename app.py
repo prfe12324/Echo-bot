@@ -104,7 +104,7 @@ def handle_text_message(event):
 
         # Carousel Template
         elif text == 'Carousel':
-            url = request.url_root + '/static/Logo.jpg'
+            url = request.url_root + 'static/Logo.jpg'
             url = url.replace("http:", "https:")
             carousel_template = CarouselTemplate(columns=[
                 CarouselColumn(
@@ -126,45 +126,15 @@ def handle_text_message(event):
         # ImageCarousel Template
         elif text == 'ImageCarousel':
             url = request.url_root + 'static/'
-            url = url.replace("http", "https")
-            app.logger.info("url=" + url)
-            image_carousel_template = ImageCarouselTemplate(
-                columns=[
-                    ImageCarouselColumn(
-                        image_url=url+'facebook.png',
-                        action=URIAction(
-                            label='造訪FB',
-                            uri='https://www.facebook.com/NTUEBIGDATAEDU'
-                        )
-                    ),
-                    ImageCarouselColumn(
-                        image_url=url+'instagram.png',
-                        action=URIAction(
-                            label='造訪IG',
-                            uri='https://instagram.com/ntue.bigdata?igshid=YmMyMTA2M2Y='
-                        )
-                    ),
-                    ImageCarouselColumn(
-                        image_url=url+'youtube.png',
-                        action=URIAction(
-                            label='造訪YT',
-                            uri='https://www.youtube.com/@bigdatantue'
-                        )
-                    ),
-                ]
-            )
+            url = url.replace("http:", "https:")
+            image_carousel_template = ImageCarouselTemplate(columns=[
+                ImageCarouselColumn(image_url=url+'facebook.png', action=URIAction(label='造訪FB', uri='https://www.facebook.com/NTUEBIGDATAEDU')),
+                ImageCarouselColumn(image_url=url+'instagram.png', action=URIAction(label='造訪IG', uri='https://instagram.com/ntue.bigdata')),
+                ImageCarouselColumn(image_url=url+'youtube.png', action=URIAction(label='造訪YT', uri='https://www.youtube.com/@bigdatantue'))
+            ])
+            image_carousel_message = TemplateMessage(alt_text='圖片輪播範本', template=image_carousel_template)
+            line_bot_api.reply_message(ReplyMessageRequest(reply_token=event.reply_token, messages=[image_carousel_message]))
 
-            image_carousel_message = TemplateMessage(
-                alt_text='圖片輪播範本',
-                template=image_carousel_template
-            )
-
-            line_bot_api.reply_message(
-                ReplyMessageRequest(
-                    reply_token=event.reply_token,
-                    messages=[image_carousel_message]
-                )
-            )
         # Quick Reply
         elif text == 'Quick':
             reply = TextMessage(
