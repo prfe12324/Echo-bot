@@ -93,7 +93,7 @@ def handle_text_message(event):
             )
         if text == 'flex':
             url = request.url_root + 'static/Logo.jpg'
-            url = url.replace("http", "https")
+            url = url.replace("http:", "https:")
             app.logger.info("url=" + url)
             bubble = FlexBubble(
                 direction='ltr',
@@ -198,7 +198,7 @@ def handle_text_message(event):
                 )
             )
 
-        elif text == 'flex message':
+        elif text == '課程':
             line_flex_json = {
   "type": "bubble",
   "hero": {
